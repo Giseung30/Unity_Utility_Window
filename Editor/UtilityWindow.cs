@@ -17,7 +17,7 @@ public class UtilityWindow : EditorWindow
         public Vector2[] vector2s;
         public Vector3[] vector3s;
         public Quaternion[] quaternions;
-        public Transform[] transforms;
+        public object[] objects;
     }
 
     [MenuItem("Window/Utility")]
@@ -42,7 +42,7 @@ public class UtilityWindow : EditorWindow
         GUILayout.Label("   ※ Set the pivot and select the objects.");
 
         data = _datas[nameof(ReverseFromPivot)];
-        data.transforms[0] = (Transform)EditorGUILayout.ObjectField("Pivot", data.transforms[0], typeof(Transform), true);
+        data.objects[0] = (Transform)EditorGUILayout.ObjectField("Pivot", (Transform)data.objects[0], typeof(Transform), true);
 
         EditorGUILayout.BeginHorizontal();
         GUILayout.Label("Position");
@@ -51,7 +51,16 @@ public class UtilityWindow : EditorWindow
         data.bools[2] = GUILayout.Toggle(data.bools[2], "Z");
         EditorGUILayout.EndHorizontal();
 
-        if (GUILayout.Button("Reverse")) ReverseFromPivot(data.transforms[0], data.bools[0], data.bools[1], data.bools[2]);
+        if (GUILayout.Button("Reverse")) ReverseFromPivot((Transform)data.objects[0], data.bools[0], data.bools[1], data.bools[2]);
+        EditorGUILayout.Space();
+
+        // Replace Material By Name
+        GUILayout.Label("* Replace Material By Name", EditorStyles.boldLabel);
+        GUILayout.Label("   ※ Set the Material and select the objects.");
+
+        data = _datas[nameof(ReplaceMaterialByName)];
+        data.objects[0] = (Material)EditorGUILayout.ObjectField("Base Material", (Material)data.objects[0], typeof(Material), true);
+        if (GUILayout.Button("Replace")) ReplaceMaterialByName((Material)data.objects[0]);
     }
     private void initializeData()
     {
@@ -60,10 +69,18 @@ public class UtilityWindow : EditorWindow
         // Reverse From Pivot
         if (!_datas.ContainsKey(nameof(ReverseFromPivot)))
         {
-            DataArrayCollection data = new DataArrayCollection();
+            DataArrayCollection data = new();
             _datas.Add(nameof(ReverseFromPivot), data);
-            data.transforms = new Transform[1];
+            data.objects = new Transform[1];
             data.bools = new bool[] { true, true, true };
+        }
+
+        // Replace Material By Name
+        if (!_datas.ContainsKey(nameof(ReplaceMaterialByName)))
+        {
+            DataArrayCollection data = new();
+            _datas.Add(nameof(ReplaceMaterialByName), data);
+            data.objects = new Material[1];
         }
     }
 
@@ -130,6 +147,39 @@ public class UtilityWindow : EditorWindow
             if (x) transforms[i].position += new Vector3(dir.x, 0f, 0f);
             if (y) transforms[i].position += new Vector3(0f, dir.y, 0f);
             if (z) transforms[i].position += new Vector3(0f, 0f, dir.z);
+        }
+    }
+    public static void ReplaceMaterialByName(Material baseMaterial)
+    {
+        if (baseMaterial == null)
+        {
+            Debug.Log($"{nameof(ReplaceMaterialByName)} | No Base Material.");
+            return;
+        }
+
+        GameObject[] selections = Selection.gameObjects;
+        if (selections == null || selections.Length == 0)
+        {
+            Debug.Log($"{nameof(ReplaceMaterialByName)} | No objects are selected.");
+            return;
+        }
+
+        for (int i = 0, l = selections.Length; i < l; ++i)
+        {
+            MeshRenderer[] renderers = selections[i].GetComponentsInChildren<MeshRenderer>(true);
+            for (int j = 0, l2 = renderers.Length; j < l2; ++j)
+            {
+                for (int k = 0, l3 = renderers[j].sharedMaterials.Length; k < l3; ++k)
+                {
+                    if (renderers[j].sharedMaterials[k].name == baseMaterial.name)
+                    {
+                        Material[] materials = renderers[j].sharedMaterials;
+                        materials[k] = baseMaterial;
+                        renderers[j].sharedMaterials = materials;
+                        Debug.Log($"{nameof(ReplaceMaterialByName)} | [{renderers[j].name}]'s [{baseMaterial.name}] is Replaced.");
+                    }
+                }
+            }
         }
     }
 }
