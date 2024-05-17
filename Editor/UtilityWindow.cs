@@ -1,8 +1,8 @@
 #if UNITY_EDITOR
 using UnityEngine;
 using UnityEditor;
-using System.Collections.Generic;
 using System;
+using System.Collections.Generic;
 
 public class UtilityWindow : EditorWindow
 {
@@ -33,13 +33,13 @@ public class UtilityWindow : EditorWindow
 
         // Get Vertices Center
         GUILayout.Label("* Get Vertices Center", EditorStyles.boldLabel);
-        GUILayout.Label("   ¡Ø Select one object.");
+        GUILayout.Label("   â€» Select one object.");
         if (GUILayout.Button("Create Center")) GetVerticesCenter();
         EditorGUILayout.Space();
 
         // Reverse From Pivot
         GUILayout.Label("* Reverse From Pivot", EditorStyles.boldLabel);
-        GUILayout.Label("   ¡Ø Set the pivot and select the objects.");
+        GUILayout.Label("   â€» Set the pivot and select the objects.");
 
         data = _datas[nameof(ReverseFromPivot)];
         data.transforms[0] = (Transform)EditorGUILayout.ObjectField("Pivot", data.transforms[0], typeof(Transform), true);
