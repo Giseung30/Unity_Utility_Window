@@ -30,15 +30,14 @@ public class UtilityWindow : EditorWindow
     {
         initializeData();
         DataArrayCollection data;
-
-        // Get Vertices Center
+        /// <see cref="GetVerticesCenter"/>
         GUILayout.Label("* Get Vertices Center", EditorStyles.boldLabel);
         GUILayout.Label("   ※ Select one object.");
         if (GUILayout.Button("Create Center")) GetVerticesCenter();
         EditorGUILayout.Space();
 
-        // Reverse From Pivot
-        GUILayout.Label("* Reverse From Pivot", EditorStyles.boldLabel);
+        /// <see cref="ReverseFromPivot"/>
+        GUILayout.Label("* Reverse from Pivot", EditorStyles.boldLabel);
         GUILayout.Label("   ※ Set the pivot and select the objects.");
 
         data = _datas[nameof(ReverseFromPivot)];
@@ -54,8 +53,8 @@ public class UtilityWindow : EditorWindow
         if (GUILayout.Button("Reverse")) ReverseFromPivot((Transform)data.objects[0], data.bools[0], data.bools[1], data.bools[2]);
         EditorGUILayout.Space();
 
-        // Replace Material By Name
-        GUILayout.Label("* Replace Material By Name", EditorStyles.boldLabel);
+        /// <see cref="ReplaceMaterialByName"/>
+        GUILayout.Label("* Replace Material by Name", EditorStyles.boldLabel);
         GUILayout.Label("   ※ Set the Material and select the objects.");
 
         data = _datas[nameof(ReplaceMaterialByName)];
@@ -66,7 +65,7 @@ public class UtilityWindow : EditorWindow
     {
         if (_datas == null) _datas = new Dictionary<string, DataArrayCollection>();
 
-        // Reverse From Pivot
+        /// <see cref="ReverseFromPivot"/>
         if (!_datas.ContainsKey(nameof(ReverseFromPivot)))
         {
             DataArrayCollection data = new();
@@ -75,7 +74,7 @@ public class UtilityWindow : EditorWindow
             data.bools = new bool[] { true, true, true };
         }
 
-        // Replace Material By Name
+        /// <see cref="ReplaceMaterialByName"/>
         if (!_datas.ContainsKey(nameof(ReplaceMaterialByName)))
         {
             DataArrayCollection data = new();
