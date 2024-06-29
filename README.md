@@ -35,3 +35,4 @@
     - `BaseMaterial`과 같은 이름의 `Material`들을 교체한다.
 
 ## 📷 스크린샷
+<img src="https://github.com/Giseung30/Unity_Utility_Window/assets/60832219/97444b59-f32b-4bc2-a48e-679d94a05fff"/>
