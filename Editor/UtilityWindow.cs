@@ -2,6 +2,7 @@
 using UnityEngine;
 using UnityEditor;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 
 public class UtilityWindow : EditorWindow
@@ -32,13 +33,13 @@ public class UtilityWindow : EditorWindow
         DataArrayCollection data;
         /// <see cref="GetVerticesCenter"/>
         GUILayout.Label("* Get Vertices Center", EditorStyles.boldLabel);
-        GUILayout.Label("   â€» Select one object.");
+        GUILayout.Label("   ¡Ø Select one object.");
         if (GUILayout.Button("Create Center")) GetVerticesCenter();
         EditorGUILayout.Space();
 
         /// <see cref="ReverseFromPivot"/>
         GUILayout.Label("* Reverse from Pivot", EditorStyles.boldLabel);
-        GUILayout.Label("   â€» Set the pivot and select the objects.");
+        GUILayout.Label("   ¡Ø Set the pivot and select the objects.");
 
         data = _datas[nameof(ReverseFromPivot)];
         data.objects[0] = (Transform)EditorGUILayout.ObjectField("Pivot", (Transform)data.objects[0], typeof(Transform), true);
@@ -55,11 +56,32 @@ public class UtilityWindow : EditorWindow
 
         /// <see cref="ReplaceMaterialByName"/>
         GUILayout.Label("* Replace Material by Name", EditorStyles.boldLabel);
-        GUILayout.Label("   â€» Set the Material and select the objects.");
+        GUILayout.Label("   ¡Ø Set the Material and select the objects.");
 
         data = _datas[nameof(ReplaceMaterialByName)];
         data.objects[0] = (Material)EditorGUILayout.ObjectField("Base Material", (Material)data.objects[0], typeof(Material), true);
         if (GUILayout.Button("Replace")) ReplaceMaterialByName((Material)data.objects[0]);
+        EditorGUILayout.Space();
+
+        /// <see cref="SetLineRendererPositions"/>
+        GUILayout.Label("* Set Line Renderer Positions", EditorStyles.boldLabel);
+        GUILayout.Label("   ¡Ø Set up the LineRenderer and positions.");
+
+        data = _datas[nameof(SetLineRendererPositions)];
+        data.objects[0] = (LineRenderer)EditorGUILayout.ObjectField("Line Renderer", (LineRenderer)data.objects[0], typeof(LineRenderer), true);
+
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("+"))
+            Array.Resize(ref data.objects, data.objects.Length + 1);
+        if (GUILayout.Button("-") && data.objects.Length > 1)
+            Array.Resize(ref data.objects, data.objects.Length - 1);
+        EditorGUILayout.EndHorizontal();
+
+        for (int i = 1, l = data.objects.Length; i < l; ++i)
+            data.objects[i] = (Transform)EditorGUILayout.ObjectField($"Position {i}", (Transform)data.objects[i], typeof(Transform), true);
+
+        if (GUILayout.Button("Set Positions"))
+            SetLineRendererPositions(data.objects[0] as LineRenderer, data.objects.Skip(1).Select(obj => obj != null ? (Transform)obj : null).ToArray());
     }
     private void initializeData()
     {
@@ -80,6 +102,14 @@ public class UtilityWindow : EditorWindow
             DataArrayCollection data = new();
             _datas.Add(nameof(ReplaceMaterialByName), data);
             data.objects = new Material[1];
+        }
+
+        /// <see cref="SetLineRendererPositions"/>
+        if (!_datas.ContainsKey(nameof(SetLineRendererPositions)))
+        {
+            DataArrayCollection data = new();
+            _datas.Add(nameof(SetLineRendererPositions), data);
+            data.objects = new LineRenderer[1];
         }
     }
 
@@ -180,6 +210,25 @@ public class UtilityWindow : EditorWindow
                 }
             }
         }
+    }
+    public static void SetLineRendererPositions(LineRenderer renderer, Transform[] transforms)
+    {
+        if (renderer == null)
+        {
+            Debug.Log($"{nameof(SetLineRendererPositions)} | No LineRenderer.");
+            return;
+        }
+        if (transforms == null)
+        {
+            Debug.Log($"{nameof(SetLineRendererPositions)} | No Transforms.");
+            return;
+        }
+        if (transforms.Contains(null))
+        {
+            Debug.Log($"{nameof(SetLineRendererPositions)} | There is null.");
+            return;
+        }
+        renderer.SetPositions(transforms.Select(tr => renderer.useWorldSpace ? tr.position : renderer.transform.InverseTransformPoint(tr.position)).ToArray());
     }
 }
 #endif
